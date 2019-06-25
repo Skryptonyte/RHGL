@@ -14,6 +14,6 @@ This library allows you to render vector graphics on a terminal.
 
 * 2D/3D Vector graphics.
 * Well optimized matrix transformations. ( Thanks Numpy.. )
-* Unoptimized as fuck line drawing algorithm. ( Bresenham mode is completely broken, so don't use that )
+* Line drawing done using Bresenham algorithm
 * RGB Colour Range support.
 
