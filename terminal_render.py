@@ -1,8 +1,8 @@
 import os
 import time
 from rhgl_transformations import *
-x_range = 160
-y_range = 60
+x_range = 240
+y_range = 120
 
 display_buffer = []
 rgb = [255,255,255]
@@ -52,6 +52,8 @@ def rhgl_setRGB(r,g,b):
     rgb = [r,g,b]
 # Drawing
 
+def rhgl_pixel(x, y):
+    display_buffer[y][x] = rgb
 def rhgl_vertex(vectorCoords: list):
     global x_range, y_range
     x = abs((vectorCoords[0] + 1)/2); y = abs((vectorCoords[1] + 1)/2); z = abs((vectorCoords[1]+1)/2);
@@ -61,41 +63,7 @@ def rhgl_vertex(vectorCoords: list):
         pass
 
 
-
-def rhgl_line_naive(vert1: list, vert2: list):
-    global x_range, y_range
-    if (vert1[0] * (x_range-1) == vert2[0] * (x_range-1)):
-        i = max(vert1[1], vert2[1])
-        while (i >= min(vert1[1],vert2[1])):
-            rhgl_vertex([vert1[0],i,0.0])
-            i -= 0.001
-        return
-    slope = (vert1[1] - vert2[1]) / (vert1[0] - vert2[0])
-    """
-    print(int((vert1[0]+1)/2 * (x_range-1)), int((vert2[0]+1)/2 * (x_range-1)), int((vert1[1]+1)/2*(y_range-1)), int((vert2[1]+1)/2*(y_range-1)))
-    exit(0)
-    """
-    if (int(vert1[1] * (y_range-1)) == int(vert2[1] * (y_range-1))): 
-        i = max(vert1[0], vert2[0])
-        while (i >= min(vert1[0],vert2[0])):
-            rhgl_vertex([i,vert1[1],0.0])
-            i -= 0.001
-        return
-    c = vert1[1] - vert1[0] * slope
-    c2 = vert2[1] - vert2[0] * slope
-    #print("Constant: ",c, c2,"Slope: ",slope)
-
-    i = max(vert1[1],vert2[1])
-    while i >= min(vert1[1], vert2[1]):
-        rhgl_vertex([(i - c)/slope,i,0.0])
-        i -= 0.001
-
-def rhgl_line_bresenham(vert1: list, vert2: list):
-    """
-    for i in range(2):
-        vert1[i] = abs((vert1[i] + 1) / 2)
-        vert2[i] = abs((vert2[i] + 1) / 2)
-    """
+def rhgl_line(vert1: list, vert2: list):
     x1 = int((vert1[0]+1)/2 * (x_range-1)); x2 = int((vert2[0]+1)/2 * (x_range-1));
     y1 = int((vert1[1]+1)/2 * (y_range-1)); y2 = int((vert2[1]+1)/2 * (y_range-1));
     dy = y2 - y1
@@ -129,26 +97,9 @@ def rhgl_line_bresenham(vert1: list, vert2: list):
             else:
                 error += xinc* dx - yinc*dy
                 x += xinc
-
-default_line = rhgl_line_bresenham
-def rhgl_line(vert1,vert2):
-    default_line(vert1, vert2)         
     
 def rhgl_triangle(a, b, c):
     rhgl_line(a,b)
     rhgl_line(b, c)
     rhgl_line(a,c)
 
-"""
-le = 0.0
-while True:
-    rhgl_init()
-    #rhgl_line(rhgl_rotateXY([-0.5,-0.5,0.0],le),(rhgl_rotateXY([0.5,-0.5,0.0],le)))
-    #rhgl_line(rhgl_rotateXY([-0.5,-0.5,0.0],le),(rhgl_rotateXY([0.0,0.5,0.0],le)))
-    #rhgl_line(rhgl_rotateXY([0.5,-0.5,0.0],le),(rhgl_rotateXY([0.0,0.5,0.0],le)))
-    rhgl_triangle(rhgl_rotateXY([-0.5,-0.5,0.5],le), rhgl_rotateXY([0.5,-0.5,0.0],le), rhgl_rotateXY([0.0,0.5,0.0], le))
-    rhgl_vertex([0.0,0.0,0.0])
-    #rhgl_vertex2f(rhgl_rotate([0.5,0.0],le)[0],rhgl_rotate([0.5,0.0],le)[1])
-    rhgl_swapBuffers()
-    le += 0.1
-"""
