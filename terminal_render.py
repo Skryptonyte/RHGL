@@ -1,13 +1,14 @@
 import os
 import time
 from rhgl_transformations import *
-x_range = 240
-y_range = 120
+x_range = 120
+y_range = 60
 
 display_buffer = []
 rgb = [255,255,255]
 
 
+deltatime = int(round(time.time() * 1000))
 def rhgl_init():
     global display_buffer
     display_buffer = []
@@ -29,6 +30,7 @@ def rhgl_swapBuffers_fallback():
     rhgl_init()
 
 def rhgl_swapBuffers_trueColor():
+    global deltatime
     os.system("clear")
     for i in range(y_range-1,0,-1):
         print('|',end='')
@@ -38,6 +40,9 @@ def rhgl_swapBuffers_trueColor():
             else:
                 print(' ',end='')
         print('|\n',end='')
+    deltatime = int(round(time.time() * 1000)) - deltatime
+    print("Frametime: ", deltatime, "ms",", Framerate: ",round(1000/deltatime)," FPS")
+    deltatime = int(round(time.time() * 1000))
     rhgl_init()
 
 
