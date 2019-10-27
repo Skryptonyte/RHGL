@@ -5,7 +5,8 @@ import time
 rhgl_init()
 rotateVal = 0.0
 while True:
-    rhgl_setFPS(60)
+    rhgl_setDisplaySize(120,60)
+    rhgl_syncFPS(30)
     verts = [[],[-0.5,-0.5,0.5],   #1
     [0.5, -0.5, 0.5],               #2
     [-0.5,0.5,0.5],                 #3
@@ -16,7 +17,7 @@ while True:
     [0.5,0.5,-0.5]]                 #8
     
     for x in range(1,len(verts)):
-        verts[x] =rhgl_perspective(rhgl_translate((rhgl_rotateXZ(verts[x],rotateVal)),[1.0,1.0,1.0],[0.0,0.0,-1.5]),80.0, 3.0, 100.0)
+        verts[x] =rhgl_perspective(rhgl_translate((rhgl_rotateXZ(verts[x],rotateVal)),[3.0,3.0,3.0],[0.0,0.0,-5.5]),80.0, 3.0, 100.0)
     #First side
     rhgl_line(verts[1], verts[2])
     rhgl_line(verts[1], verts[3])
@@ -36,5 +37,6 @@ while True:
     rhgl_line(verts[1],verts[5])
     rhgl_line(verts[2], verts[6])
  
+    rhgl_renderText([-0.1, -0.75], "Cube Demo")
     rhgl_swapBuffers()
     rotateVal += 0.05

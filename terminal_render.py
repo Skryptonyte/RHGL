@@ -10,13 +10,19 @@ rgb = [255,255,255]
 
 deltatime = int(round(time.time() * 1000))
 frametime_minima = 0
+
+# RHGL Registers
+
 last_frametime = 0    # Useful for dynamically adjusting game speed based on frametimes
+zbound_cross = 0
+#######
+
 clearMode = ""
 
 
 def rhgl_init():
     global display_buffer
-    display_buffer = []
+    display_buffer.clear()
     for i in range(y_range):
         display_buffer.append([])
         for j in range(x_range):
@@ -33,7 +39,7 @@ def rhgl_swapBuffers_fallback():
         print('|',end='')
         for j in range(x_range):
             if (display_buffer[i][j]):
-                print('\u2588',end='')
+                print(display_buffer[i][j][3],end='')
             else:
                 print(' ',end='')
         print('|\n',end='')
@@ -56,7 +62,7 @@ def rhgl_swapBuffers_trueColor():
         print('|',end='')
         for j in range(x_range):
             if (display_buffer[i][j]):
-                print('\033[38;2;{0};{1};{2}m'.format(display_buffer[i][j][0], display_buffer[i][j][1], display_buffer[i][j][2])+'\u2588'+'\033[0m',end='')
+                print('\033[38;2;{0};{1};{2}m'.format(display_buffer[i][j][0], display_buffer[i][j][1], display_buffer[i][j][2])+display_buffer[i][j][3]+'\033[0m',end='')
             else:
                 print(' ',end='')
         print('|\n',end='')
@@ -110,20 +116,51 @@ def rhgl_setDisplaySize(x,y):
     x_range = x
     y_range = y
     rhgl_init()
-# Drawing
+## Drawing
+
 
 def rhgl_pixel(x, y):
-    display_buffer[y][x] = rgb
+    display_buffer[y][x] = rgb + ['\u2588']
+
 def rhgl_vertex(vectorCoords: list):
     global x_range, y_range
     x = abs((vectorCoords[0] + 1)/2); y = abs((vectorCoords[1] + 1)/2); z = abs((vectorCoords[1]+1)/2);
     try:
-        display_buffer[int(y * (y_range - 1))][int(x*(x_range - 1))] = [rgb[0], rgb[1], rgb[2]]
+        display_buffer[int(y * (y_range - 1))][int(x*(x_range - 1))] = [rgb[0], rgb[1], rgb[2], '\u2588']
     except:
         pass
 
+def rhgl_renderText(vectorCoords,text):
+    global x_range, y_range
+    x = abs((vectorCoords[0] + 1)/2)
+    y = abs((vectorCoords[1] + 1)/2);
+    
+    x = int(x * (x_range-1))
+    y = int(y * (y_range-1))
+    
+    x0 = 0
+    t = 0
+    while x+x0 < x_range and t < len(text):
+        if text[t] == '\n':
+            y += 1
+            x0 = 0
+        else:
+            display_buffer[y][x+x0] = [rgb[0], rgb[1], rgb[2], text[t]]
+            x0 += 1
+        t += 1
+
 # Line Drawing using Bresenham's
 def rhgl_line(vert1: list, vert2: list):
+    global zbound_cross
+    
+    # Perform 3D test and subsequent Z Bound Checking
+    if len(vert1) == len(vert2) == 3:
+        zbound_cross = 0
+        if abs(vert1[1]) > 1.0 or abs(vert2[2]) > 1.0:
+            zbound_cross = 1
+            return 
+    
+    global x_range, y_range
     x1 = int((vert1[0]+1)/2 * (x_range-1)); x2 = int((vert2[0]+1)/2 * (x_range-1));
     y1 = int((vert1[1]+1)/2 * (y_range-1)); y2 = int((vert2[1]+1)/2 * (y_range-1));
     dy = y2 - y1
@@ -141,7 +178,8 @@ def rhgl_line(vert1: list, vert2: list):
         error = yinc*(dy >> 1)
         y = y1
         for x in range(x1,x2,xinc):
-            display_buffer[y][x] = [rgb[0], rgb[1], rgb[2]]
+            if 0 <= y < y_range and 0 <= x < x_range:
+                display_buffer[y][x] = [rgb[0], rgb[1], rgb[2],'\u2588']
             if ((error + yinc*dy)<<1 < xinc* dx):
                 error += dy * yinc
             else:
@@ -151,7 +189,8 @@ def rhgl_line(vert1: list, vert2: list):
         x = x1
         error = yinc *(dx >> 1)
         for y in range(y1, y2,yinc):
-            display_buffer[y][x] = [rgb[0], rgb[1], rgb[2]]
+            if  0 <= y < y_range and 0 <= x < x_range:
+                display_buffer[y][x] = [rgb[0], rgb[1], rgb[2], '\u2588']
             if ((error + xinc*dx)<<1 < yinc*dy):
                 error += dx*xinc
             else:
@@ -162,4 +201,10 @@ def rhgl_triangle(a, b, c):
     rhgl_line(a,b)
     rhgl_line(b, c)
     rhgl_line(a,c)
+
+def rhgl_quad(a, b, c):
+    rhgl_line(a,b)
+    rhgl_line(b,c)
+    rhgl_line(c,d)
+    rhgl_line(a,d)
 

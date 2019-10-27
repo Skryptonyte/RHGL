@@ -4,7 +4,7 @@ from rhgl_transformations import *
 
 
 rhgl_init()
-
+rhgl_syncFPS(10)
 def serpinskiOrder(n,vertices):
     n -= 1;
     new_vertices = [[(vertices[0][0] + vertices[1][0])/2,(vertices[0][1] + vertices[1][1])/2, (vertices[0][2] + vertices[1][2])/2],
