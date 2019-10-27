@@ -112,10 +112,24 @@ def rhgl_ClearMode(mode):
     clearMode = mode
  
 def rhgl_setDisplaySize(x,y):
-    global x_range, y_range
+    global x_range
+    global y_range
+    print(x_range, y_range)
     x_range = x
     y_range = y
+    print(x_range, y_range)
     rhgl_init()
+
+def rhgl_retrieveDisplaySize():
+    global x_range
+    global y_range
+    return x_range, y_range
+
+def rhgl_retrieveRegisters():
+    global last_frametime
+    global zbound_cross
+    return last_frametime, zbound_cross
+
 ## Drawing
 
 

@@ -1,19 +1,20 @@
 from rhgl_transformations import *
 from terminal_render import *
 import terminal_render
-rhgl_init()
 
+rhgl_setDisplaySize(120,60)
+XR, YR = rhgl_retrieveDisplaySize()
+rhgl_init()
 
 dynamic_iters = 35
-rhgl_init()
 while 1:
     x = 0
-    while x < x_range-1:
+    while x < XR-1:
         y = 0
-        while y < y_range-1:
+        while y < YR-1:
             R = 0
             I = 0
-            xn = ((2*x/x_range - 1 )); yn = 2*y/y_range - 1
+            xn = ((2*x/XR - 1 )); yn = 2*y/YR - 1
             iters = dynamic_iters
             while (sqrt(R*R + I*I) <= 2.0 and iters >= 0):	
                 RN = R*R - I*I
