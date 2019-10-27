@@ -14,10 +14,9 @@ while True:
         rhgl_vertex([0.0,0.0,0.0])
         rhgl_vertex(rhgl_rotateXY([0.0,0.5,0.0],r))
         r += 0.01
-    rhgl_line_bresenham([0.0,0.0,0.0],rhgl_rotateXY([0.0,0.5,0.0],secs*(-3.14 / 30)))
-    rhgl_line_bresenham([0.0,0.0,0.0],rhgl_rotateXY([0.0,0.35,0.0],mins*(-3.14 / 30)))
+    rhgl_line([0.0,0.0,0.0],rhgl_rotateXY([0.0,0.5,0.0],secs*(-3.14 / 30)))
+    rhgl_line([0.0,0.0,0.0],rhgl_rotateXY([0.0,0.35,0.0],mins*(-3.14 / 30)))
     rhgl_swapBuffers()
-    time.sleep(1)
     if (secs == 59):
         mins = (mins + 1) % 60
     secs = (secs + 1) % 60

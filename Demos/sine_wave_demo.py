@@ -9,6 +9,5 @@ while True:
     while (x <= 1.0):
         rhgl_vertex([x,1/2*sin(6*x + phase),0.0])
         x += 0.01
-    time.sleep(0.01)
     phase += 0.05
     rhgl_swapBuffers()

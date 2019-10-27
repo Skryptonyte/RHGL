@@ -9,6 +9,11 @@ rgb = [255,255,255]
 
 
 deltatime = int(round(time.time() * 1000))
+frametime_minima = 0
+last_frametime = 0    # Useful for dynamically adjusting game speed based on frametimes
+clearMode = ""
+
+
 def rhgl_init():
     global display_buffer
     display_buffer = []
@@ -17,9 +22,14 @@ def rhgl_init():
         for j in range(x_range):
             display_buffer[i].append(0)	
 
+## Buffer Swap Modes
+
+# At its core, rendering works solely on a double buffer system. The first buffer being the terminal's i.e the rendered image and the internal buffer of the library used for intermediate calculations before render
+
 def rhgl_swapBuffers_fallback():
-    os.system("clear")
-    for i in range(y_range-1,0,-1):
+    global deltatime
+    os.system(clearMode)
+    for i in range(y_range-1,-1,-1):
         print('|',end='')
         for j in range(x_range):
             if (display_buffer[i][j]):
@@ -27,11 +37,21 @@ def rhgl_swapBuffers_fallback():
             else:
                 print(' ',end='')
         print('|\n',end='')
+    print("INFO: ",end='')
+    deltatime = int(round(time.time() * 1000)) - deltatime
+    if frametime_minima > deltatime:  
+        d = frametime_minima - deltatime
+        deltatime += d
+        print("Frametime: ", deltatime, "ms",", Framerate: ",round(1000/deltatime)," FPS")
+        time.sleep(d/1000)
+    else:
+        print("Frametime: ", deltatime, "ms",", Framerate: ",round(1000/deltatime)," FPS")
+    deltatime = int(round(time.time() * 1000))
     rhgl_init()
 
 def rhgl_swapBuffers_trueColor():
     global deltatime
-    os.system("clear")
+    os.system(clearMode)
     for i in range(y_range-1,0,-1):
         print('|',end='')
         for j in range(x_range):
@@ -41,20 +61,55 @@ def rhgl_swapBuffers_trueColor():
                 print(' ',end='')
         print('|\n',end='')
     deltatime = int(round(time.time() * 1000)) - deltatime
-    print("Frametime: ", deltatime, "ms",", Framerate: ",round(1000/deltatime)," FPS")
+    if frametime_minima > deltatime:
+        d = frametime_minima - deltatime
+        deltatime += d
+        print("Frametime: ", deltatime, "ms",", Framerate: ",round(1000/deltatime)," FPS")
+        time.sleep(d/1000)
+    else:
+        print("Frametime: ", deltatime, "ms",", Framerate: ",round(1000/deltatime)," FPS")
     deltatime = int(round(time.time() * 1000))
     rhgl_init()
 
 
 ## Initialize Library
 
+bufferModes = {1: rhgl_swapBuffers_fallback, 2: rhgl_swapBuffers_trueColor}
 rhgl_swapBuffers = rhgl_swapBuffers_trueColor
 
-# Configurations
+# Automatically set method of clearing buffer based on a simple OS check 
+
+if os.name == 'nt':  # Mode for Windows platforms
+    clearMode = "cls"
+else:     # Mode for macOS, Linux, FreeBSD and other UNIX systems
+    clearMode = "clear"
+
+## Configurations
 
 def rhgl_setRGB(r,g,b):
     global rgb
     rgb = [r,g,b]
+
+def rhgl_setDrawMode(mode):
+    global rhgl_swapBuffers 
+    rhgl_swapBuffers = bufferModes[mode]
+
+def rhgl_syncFPS(fps):    # Framelimiter can cause increased flickering
+    global frametime_minima
+    if fps == 0:    # Disable frame limiter
+        mode = 0
+    else:
+        frametime_minima = round(int(1000/fps))
+
+def rhgl_ClearMode(mode):
+    global clearMode
+    clearMode = mode
+ 
+def rhgl_setDisplaySize(x,y):
+    global x_range, y_range
+    x_range = x
+    y_range = y
+    rhgl_init()
 # Drawing
 
 def rhgl_pixel(x, y):
@@ -67,7 +122,7 @@ def rhgl_vertex(vectorCoords: list):
     except:
         pass
 
-
+# Line Drawing using Bresenham's
 def rhgl_line(vert1: list, vert2: list):
     x1 = int((vert1[0]+1)/2 * (x_range-1)); x2 = int((vert2[0]+1)/2 * (x_range-1));
     y1 = int((vert1[1]+1)/2 * (y_range-1)); y2 = int((vert2[1]+1)/2 * (y_range-1));
