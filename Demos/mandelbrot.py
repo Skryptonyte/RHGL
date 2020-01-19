@@ -2,7 +2,7 @@ from rhgl_transformations import *
 from terminal_render import *
 import terminal_render
 
-rhgl_setDisplaySize(120,60)
+#rhgl_setDisplaySize(120,60)
 XR, YR = rhgl_retrieveDisplaySize()
 rhgl_init()
 

@@ -2,11 +2,10 @@ from rhgl_transformations import *
 from terminal_render import *
 import time
 
+rhgl_syncFPS(30)
 rhgl_init()
 rotateVal = 0.0
 while True:
-    rhgl_setDisplaySize(120,60)
-    rhgl_syncFPS(30)
     verts = [[],[-0.5,-0.5,0.5],   #1
     [0.5, -0.5, 0.5],               #2
     [-0.5,0.5,0.5],                 #3

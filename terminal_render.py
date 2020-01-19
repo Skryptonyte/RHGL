@@ -1,8 +1,8 @@
 import os
 import time
-from rhgl_transformations import *
-x_range = 120
-y_range = 60
+
+x_range = 64
+y_range = 32
 
 display_buffer = []
 rgb = [255,255,255]
@@ -34,6 +34,7 @@ def rhgl_init():
 
 def rhgl_swapBuffers_fallback():
     global deltatime
+    global last_frametime
     os.system(clearMode)
     for i in range(y_range-1,-1,-1):
         print('|',end='')
@@ -53,12 +54,14 @@ def rhgl_swapBuffers_fallback():
     else:
         print("Frametime: ", deltatime, "ms",", Framerate: ",round(1000/deltatime)," FPS")
     deltatime = int(round(time.time() * 1000))
+    last_frametime = deltatime/1000
     rhgl_init()
 
 def rhgl_swapBuffers_trueColor():
     global deltatime
+    global last_frametime
     os.system(clearMode)
-    for i in range(y_range-1,0,-1):
+    for i in range(y_range-1,-1,-1):
         print('|',end='')
         for j in range(x_range):
             if (display_buffer[i][j]):
@@ -74,6 +77,7 @@ def rhgl_swapBuffers_trueColor():
         time.sleep(d/1000)
     else:
         print("Frametime: ", deltatime, "ms",", Framerate: ",round(1000/deltatime)," FPS")
+    last_frametime = deltatime/1000
     deltatime = int(round(time.time() * 1000))
     rhgl_init()
 
@@ -82,7 +86,6 @@ def rhgl_swapBuffers_trueColor():
 
 bufferModes = {1: rhgl_swapBuffers_fallback, 2: rhgl_swapBuffers_trueColor}
 rhgl_swapBuffers = rhgl_swapBuffers_trueColor
-
 # Automatically set method of clearing buffer based on a simple OS check 
 
 if os.name == 'nt':  # Mode for Windows platforms
@@ -138,11 +141,10 @@ def rhgl_pixel(x, y):
 
 def rhgl_vertex(vectorCoords: list):
     global x_range, y_range
-    x = abs((vectorCoords[0] + 1)/2); y = abs((vectorCoords[1] + 1)/2); z = abs((vectorCoords[1]+1)/2);
-    try:
+    test = -1.0 <= vectorCoords[0] <= 1.0 and -1.0 <= vectorCoords[1] <= 1.0
+    if test:
+        x = abs((vectorCoords[0] + 1)/2); y = abs((vectorCoords[1] + 1)/2); z = abs((vectorCoords[1]+1)/2);
         display_buffer[int(y * (y_range - 1))][int(x*(x_range - 1))] = [rgb[0], rgb[1], rgb[2], '\u2588']
-    except:
-        pass
 
 def rhgl_renderText(vectorCoords,text):
     global x_range, y_range
@@ -216,7 +218,7 @@ def rhgl_triangle(a, b, c):
     rhgl_line(b, c)
     rhgl_line(a,c)
 
-def rhgl_quad(a, b, c):
+def rhgl_quad(a, b, c,d):
     rhgl_line(a,b)
     rhgl_line(b,c)
     rhgl_line(c,d)
